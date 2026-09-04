@@ -28,7 +28,6 @@ on:
         default: false
         type: boolean
 
-
 jobs:
 
   build:
