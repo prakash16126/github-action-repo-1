@@ -1,101 +1,66 @@
-name: Day-3
+name: Job - Day 1
 
 on:
   push:
-    branches: ["master", "main", "dev"]
-
-  workflow_dispatch:
-    inputs:
-      username:
-        description: "Enter your username"
-        required: true
-        default: "Prakash"
-        type: string
-
-      environment:
-        description: "Select deployment environment"
-        required: true
-        default: "staging"
-        type: choice
-        options:
-          - dev
-          - staging
-          - production
-
-      deploy:
-        description: "Do you want to deploy?"
-        required: true
-        default: true
-        type: boolean
+    branches:
+      - main
 
 jobs:
 
   build:
+    name: Basic CI Workflow
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+
+      # 1. Checkout the repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      # 2. Display repository files
+      - name: List Repository Files
+        run: ls -la
 
-      - name: Show Inputs
+      # 3. Run a basic command
+      - name: Display Message
+        run: echo "Hello from GitHub Actions!"
+
+      # 4. Create a sample file
+      - name: Create Artifact
         run: |
-          echo "Username: ${{ inputs.username }}"
-          echo "Environment: ${{ inputs.environment }}"
-          echo "Deploy: ${{ inputs.deploy }}"
+          echo "GitHub Actions Day 1" > build-output.txt
+          echo "Workflow executed successfully!" >> build-output.txt
 
-      - name: Build
-        run: npm install
+      # 5. Upload artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: day1-artifact
+          path: build-output.txt
 
 
-  test:
-    needs: build
+  codeql:
+    name: CodeQL Security Scan
     runs-on: ubuntu-latest
 
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
     steps:
-      - name: Checkout
+
+      # 6. Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # 7. Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          node-version: '20'
+          languages: javascript
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Test
-        run: npm test
-
-
-  security:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Security Check
-        run: echo "Security scan completed"
-
-      - name: Deploy
-        if: ${{ inputs.deploy == true }}
-        run: |
-          echo "Deploying to ${{ inputs.environment }}"
-          echo "Deployed by ${{ inputs.username }}"
-
-      - name: Skip Deployment
-        if: ${{ inputs.deploy == false }}
-        run: echo "Deployment skipped"
-
-      - name: Rollback
-        if: failure()
-        run: echo "Rollback is done"
-
-  info:
-     runs-on: ubuntu-latest
-     steps:
-       - name: Output of the Job
-         run: echo "${{ toJson(github) }}"
+      # 8. Analyze the code
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
