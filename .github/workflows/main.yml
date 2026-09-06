@@ -86,7 +86,9 @@ jobs:
 
     steps:
       - name: Security Check
-        run: echo "Security scan completed"
+        run: |
+          echo "Security scan failed"
+          exit 1
 
       - name: Deploy
         if: ${{ inputs.deploy == true }}
