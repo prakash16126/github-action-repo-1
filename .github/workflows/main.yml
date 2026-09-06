@@ -1,10 +1,10 @@
-name: GitHub Actions - Day 1
+name: Job - Day 1
 
 on:
   push:
     branches:
       - main
-          - master
+      - master
   
   workflow_dispatch: 
 jobs:
