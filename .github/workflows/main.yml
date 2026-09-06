@@ -1,64 +1,44 @@
-name: Job - Day 1
+name: Job - Day 2
 
 on:
   push:
     branches:
       - main
       - master
-  
   workflow_dispatch: 
+
 jobs:
-  build:
-    name: Basic CI Workflow
+  ci:
+    name: React Application CI
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Display repository files
-      - name: List Repository Files
-        run: ls -la
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-      # 3. Run a basic command
-      - name: Display Message
-        run: echo "Hello from GitHub Actions!"
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm ci
 
-      # 4. Create a sample file
-      - name: Create Artifact
-        run: |
-          echo "GitHub Actions Day 1" > build-output.txt
-          echo "Workflow executed successfully!" >> build-output.txt
+      # 4. Build application
+      - name: Build Application
+        run: npm run build
 
-      # 5. Upload artifact
-      - name: Upload Artifact
+      # 5. Display build files
+      - name: Display Build Output
+        run: ls -la dist
+
+      # 6. Upload production build
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: day1-artifact
-          path: build-output.txt
-
-  codeql:
-    name: CodeQL Security Scan
-    runs-on: ubuntu-latest
-
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
-
-    steps:
-      # 6. Checkout repository
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # 7. Initialize CodeQL
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      # 8. Analyze the code
-      - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+          name: react-build
+          path: dist/
